@@ -22,6 +22,7 @@ class Quiz
     private $id;
 
     /**
+     * @Assert\NotNull
      * @Assert\NotBlank
      * @Assert\Length(
      *  max=255,
@@ -31,6 +32,7 @@ class Quiz
     private $title;
 
     /**
+     * @Assert\NotNull
      * @Assert\NotBlank
      * @Assert\Length(
      *  max=255,
@@ -40,6 +42,7 @@ class Quiz
     private $description;
 
     /**
+     * @Assert\NotNull
      * @Assert\Range(
      *  min=1,
      *  max=3,
@@ -68,6 +71,18 @@ class Quiz
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    /**
+     * Set the value of id
+     *
+     * @return  self
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getTitle(): ?string
@@ -147,5 +162,4 @@ class Quiz
 
         return $this;
     }
-
 }
