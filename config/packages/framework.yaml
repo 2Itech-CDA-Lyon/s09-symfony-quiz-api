@@ -16,5 +16,10 @@ framework:
     php_errors:
         log: true
 
+    property_info:
+        enabled: true
+
     serializer:
+        enabled: true
+        enable_annotations: true
         circular_reference_handler: App\Serializer\CustomCircularReferenceHandler
