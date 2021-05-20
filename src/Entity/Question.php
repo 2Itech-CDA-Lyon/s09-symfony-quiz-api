@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\QuestionRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\QuestionRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -37,19 +38,22 @@ class Question
     private $order;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Quiz::class, inversedBy="questions")
+     * @ORM\ManyToOne(targetEntity=Quiz::class, inversedBy="questions", cascade={"persist"}, fetch="EAGER"))
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @Ignore()
      */
     private $quiz;
 
     /**
      * @ORM\OneToOne(targetEntity=Answer::class, cascade={"persist"})
      * @ORM\JoinColumn(onDelete="SET NULL")
+     * @Ignore()
      */
     private $rightAnswer;
 
     /**
      * @ORM\OneToMany(targetEntity=Answer::class, mappedBy="question", orphanRemoval=true)
+     * @Ignore()
      */
     private $answers;
 
@@ -61,6 +65,18 @@ class Question
     public function getId(): ?int
     {
         return $this->id;
+    }
+    
+    /**
+     * Set the value of id
+     *
+     * @return  self
+     */ 
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getText(): ?string

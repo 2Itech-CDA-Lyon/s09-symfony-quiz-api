@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Quiz;
 use App\Entity\Question;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method Question|null find($id, $lockMode = null, $lockVersion = null)
@@ -94,6 +95,17 @@ class QuestionRepository extends ServiceEntityRepository
             ->getQuery()
             // Récupère le résultat de la requête sous forme de nombre
             ->getSingleScalarResult()
+        ;
+    }
+
+    public function findQuestionsInQuizInOrder(Quiz $quiz): array
+    {
+        return $this->createQueryBuilder('q')
+            ->where('q.quiz = :quiz')
+            ->setParameter('quiz', $quiz)
+            ->orderBy('q.order', 'ASC')
+            ->getQuery()
+            ->getResult()
         ;
     }
 

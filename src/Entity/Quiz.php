@@ -7,6 +7,8 @@ use App\Repository\QuizRepository;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -53,12 +55,14 @@ class Quiz
 
     /**
      * @ORM\OneToMany(targetEntity=Question::class, mappedBy="quiz", orphanRemoval=true)
+     * @Ignore()
      */
     private $questions;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="quizzes")
      * @ORM\JoinColumn(onDelete="SET NULL")
+     * @Ignore()
      */
     private $author;
 

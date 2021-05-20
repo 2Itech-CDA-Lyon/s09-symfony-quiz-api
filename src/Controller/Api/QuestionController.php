@@ -2,8 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Quiz;
-use App\Repository\QuizRepository;
+use App\Entity\Question;
 use App\Repository\QuestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,23 +15,23 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
- * @Route("/api/quiz", name="api_quiz")
+ * @Route("/api/question", name="api_question")
  */
-class QuizController extends AbstractController
+class QuestionController extends AbstractController
 {
-    protected QuizRepository $repository;
+    protected QuestionRepository $repository;
     protected SerializerInterface $serializer;
     protected EntityManagerInterface $manager;
     protected ValidatorInterface $validator;
 
-    public function __construct(QuizRepository $repository, SerializerInterface $serializer, EntityManagerInterface $manager, ValidatorInterface $validator)
+    public function __construct(QuestionRepository $repository, SerializerInterface $serializer, EntityManagerInterface $manager, ValidatorInterface $validator)
     {
         $this->repository = $repository;
         $this->serializer = $serializer;
         $this->manager = $manager;
         $this->validator = $validator;
     }
-
+    
     /**
      * @Route("/", name="_list", methods={"GET"})
      */
@@ -46,9 +45,9 @@ class QuizController extends AbstractController
     /**
      * @Route("/{id}", name="_single", methods={"GET"}, requirements={"id":"\d+"})
      */
-    public function single(Quiz $quiz): Response
+    public function single(Question $question): Response
     {
-        return $this->makeJsonResponse($quiz);
+        return $this->makeJsonResponse($question);
     }
 
     /**
@@ -57,9 +56,10 @@ class QuizController extends AbstractController
     public function create(Request $request): Response
     {
         // Transforme le code JSON reçu par le client en objet
-        $quiz = $this->serializer->deserialize($request->getContent(), Quiz::class, 'json');
+        $question = $this->serializer->deserialize($request->getContent(), Question::class, 'json');
+        $this->manager->merge($question->getQuiz());
         // Vérifie que les propriétés de l'objet obtenu correspondent bien aux contraintes définies dans la classe
-        $violationList = $this->validator->validate($quiz);
+        $violationList = $this->validator->validate($question);
         // Si l'objet n'est pas conforme aux contraintes
         if (!empty($violationList->violations)) {
             // Renvoie une erreur 400 avec la liste des contraintes non respectées
@@ -67,22 +67,22 @@ class QuizController extends AbstractController
         }
 
         // Envoie l'objet obtenu en base de données
-        $this->manager->persist($quiz);
+        $this->manager->persist($question);
         $this->manager->flush();
         // Renvoie une réponse de succès avec une copie de l'objet envoyé en base de données
-        return $this->makeJsonResponse($quiz, Response::HTTP_CREATED);
+        return $this->makeJsonResponse($question, Response::HTTP_CREATED);
     }
 
     /**
      * @Route("/{id}", name="_update", methods={"PUT"}, requirements={"id":"\d+"})
      */
-    public function update(Quiz $quiz, Request $request)
+    public function update(Question $question, Request $request)
     {
         // Transforme le code JSON reçu par le client en objet
-        $newQuiz = $this->serializer->deserialize($request->getContent(), Quiz::class, 'json');
-        $newQuiz->setId($quiz->getId());
+        $newQuestion = $this->serializer->deserialize($request->getContent(), Question::class, 'json');
+        $newQuestion->setId($question->getId());
         // Vérifie que les propriétés de l'objet obtenu correspondent bien aux contraintes définies dans la classe
-        $violationList = $this->validator->validate($quiz);
+        $violationList = $this->validator->validate($question);
         // Si l'objet n'est pas conforme aux contraintes
         if (!empty($violationList->violations)) {
             // Renvoie une erreur 400 avec la liste des contraintes non respectées
@@ -90,29 +90,29 @@ class QuizController extends AbstractController
         }
 
         // Envoie l'objet obtenu en base de données
-        $this->manager->merge($newQuiz);
+        $this->manager->merge($newQuestion);
         $this->manager->flush();
         // Renvoie une réponse de succès avec une copie de l'objet envoyé en base de données
-        return $this->makeJsonResponse($newQuiz);   
+        return $this->makeJsonResponse($newQuestion);   
     }
 
     /**
      * @Route("/{id}", name="_delete", methods={"DELETE"}, requirements={"id":"\d+"})
      */
-    public function delete(Quiz $quiz)
+    public function delete(Question $question)
     {
-        $this->manager->remove($quiz);
+        $this->manager->remove($question);
         $this->manager->flush();
         return $this->makeJsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
-     * @Route("/{id}/questions", name="_questions", methods={"GET"}, requirements={"id":"\d+"})
+     * @Route("/{id}/answers", name="_list_answers", methods={"GET"}, requirements={"id":"\d+"})
      */
-    public function answers(Quiz $quiz, QuestionRepository $questionRepository): Response
+    public function getAnswers(Question $question)
     {
         return $this->makeJsonResponse(
-            $questionRepository->findQuestionsInQuizInOrder($quiz)
+            $question->getAnswers()
         );
     }
 
