@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Question;
+use App\Repository\AnswerRepository;
 use App\Repository\QuestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,13 +108,34 @@ class QuestionController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/answers", name="_list_answers", methods={"GET"}, requirements={"id":"\d+"})
+     * @Route("/{id}/answers", name="_answers", methods={"GET"}, requirements={"id":"\d+"})
      */
-    public function getAnswers(Question $question)
+    public function answers(Question $question)
     {
         return $this->makeJsonResponse(
             $question->getAnswers()
         );
+    }
+
+    /**
+     * @Route("/{id}/answer", name="_answer", methods={"POST"}, requirements={"id":"\d+"})
+     */
+    public function answer(Question $question, Request $request, QuestionRepository $repository)
+    {
+        $payload = \json_decode($request->getContent(), true);
+
+        // Cherche la question...
+        $nextQuestion = $repository->findOneBy([
+            // ...qui appartient au même quiz que la question à laquelle on vient de répondre...
+            'quiz' => $question->getQuiz(),
+            // ...et qui la suit directement dans l'ordre
+            'order' => $question->getOrder() + 1
+        ]);
+
+        return $this->makeJsonResponse([
+            'rightAnswer' => $question->getRightAnswer(),
+            'nextQuestion' => $nextQuestion,
+        ]);
     }
 
     /**

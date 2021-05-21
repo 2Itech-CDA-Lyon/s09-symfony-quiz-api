@@ -52,7 +52,7 @@ class Question
     private $rightAnswer;
 
     /**
-     * @ORM\OneToMany(targetEntity=Answer::class, mappedBy="question", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Answer::class, mappedBy="question", orphanRemoval=true, fetch="EAGER")
      * @Ignore()
      */
     private $answers;

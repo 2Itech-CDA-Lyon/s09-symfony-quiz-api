@@ -109,10 +109,20 @@ class QuizController extends AbstractController
     /**
      * @Route("/{id}/questions", name="_questions", methods={"GET"}, requirements={"id":"\d+"})
      */
-    public function answers(Quiz $quiz, QuestionRepository $questionRepository): Response
+    public function questions(Quiz $quiz, QuestionRepository $questionRepository): Response
     {
         return $this->makeJsonResponse(
             $questionRepository->findQuestionsInQuizInOrder($quiz)
+        );
+    }
+
+    /**
+     * @Route("/{id}/first_question", name="_first_question", methods={"GET"}, requirements={"id":"\d+"})
+     */
+    public function firstQuestion(Quiz $quiz, QuestionRepository $questionRepository)
+    {
+        return $this->makeJsonResponse(
+            $questionRepository->findOneBy(['order' => 1, 'quiz' => $quiz])
         );
     }
 

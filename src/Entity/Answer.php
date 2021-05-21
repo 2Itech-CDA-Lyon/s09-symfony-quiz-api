@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\AnswerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\AnswerRepository;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -28,7 +29,7 @@ class Answer
     private $text;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Question::class, inversedBy="answers")
+     * @ORM\ManyToOne(targetEntity=Question::class, inversedBy="answers", fetch="EAGER")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $question;
@@ -57,16 +58,6 @@ class Answer
 
     public function setQuestion(?Question $question): self
     {
-        // unset the owning side of the relation if necessary
-        if ($question === null && $this->question !== null) {
-            $this->question->setRightAnswer(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($question !== null && $question->getRightAnswer() !== $this) {
-            $question->setRightAnswer($this);
-        }
-
         $this->question = $question;
 
         return $this;
