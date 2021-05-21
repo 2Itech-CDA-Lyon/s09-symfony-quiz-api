@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -22,8 +22,6 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Email
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $email;
@@ -34,22 +32,27 @@ class User implements UserInterface
     private $roles = [];
 
     /**
-     * @Assert\NotBlank
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Ignore()
      */
     private $password;
 
     /**
      * @ORM\OneToMany(targetEntity=Quiz::class, mappedBy="author")
+     * @Ignore()
      */
     private $quizzes;
+
+    /**
+     * @ORM\Column(type="string", length=255, unique=true, nullable=true)
+     */
+    private $apiToken;
 
     public function __construct()
     {
         $this->quizzes = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -90,11 +93,6 @@ class User implements UserInterface
         return array_unique($roles);
     }
 
-    public function hasRole(string $role): bool
-    {
-        return \in_array($role, $this->getRoles());
-    }
-
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
@@ -107,7 +105,7 @@ class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return $this->password;
     }
 
     public function setPassword(string $password): self
@@ -163,6 +161,18 @@ class User implements UserInterface
                 $quiz->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function setApiToken(?string $apiToken): self
+    {
+        $this->apiToken = $apiToken;
 
         return $this;
     }

@@ -61,7 +61,6 @@ class Quiz
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="quizzes")
-     * @ORM\JoinColumn(onDelete="SET NULL")
      * @Ignore()
      */
     private $author;
